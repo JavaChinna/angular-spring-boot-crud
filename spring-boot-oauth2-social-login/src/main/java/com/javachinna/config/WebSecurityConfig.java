@@ -15,7 +15,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
@@ -33,29 +32,29 @@ import com.javachinna.security.oauth2.OAuth2AccessTokenResponseConverterWithDefa
 import com.javachinna.security.oauth2.OAuth2AuthenticationFailureHandler;
 import com.javachinna.security.oauth2.OAuth2AuthenticationSuccessHandler;
 
+import lombok.AllArgsConstructor;
+
 @Configuration
+@AllArgsConstructor
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-	@Autowired
-	private UserDetailsService userDetailsService;
+	private final UserDetailsService userDetailsService;
 
-	@Autowired
-	private CustomOAuth2UserService customOAuth2UserService;
+	private final CustomOAuth2UserService customOAuth2UserService;
 
-	@Autowired
-	CustomOidcUserService customOidcUserService;
+	private final CustomOidcUserService customOidcUserService;
 
-	@Autowired
-	private OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
+	private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
 
-	@Autowired
-	private OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
+	private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
+
+	private final PasswordEncoder passwordEncoder;
 
 	@Autowired
 	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-		auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+		auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
 	}
 
 	@Override
@@ -92,11 +91,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	public UserDetailsService userDetailsService() {
 		return userDetailsService;
-	}
-
-	@Bean
-	public PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder(10);
 	}
 
 	@Bean(BeanIds.AUTHENTICATION_MANAGER)
